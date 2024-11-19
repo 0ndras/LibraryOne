@@ -1,4 +1,4 @@
-package repository;
+package repository.book;
 
 import model.Book;
 import model.builder.BookBuilder;
@@ -73,11 +73,9 @@ public class BookRepositoryMySQL implements BookRepository{
     public boolean delete(Book book) {
         String newSql = "DELETE FROM book WHERE author=\'" + book.getAuthor() +"\' AND title=\'" + book.getTitle()+"\';";
 
-
         try{
             Statement statement = connection.createStatement();
             statement.executeUpdate(newSql);
-
         } catch (SQLException e){
             e.printStackTrace();
             return false;
