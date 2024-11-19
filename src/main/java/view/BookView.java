@@ -47,7 +47,6 @@ public class BookView {
         gridPane.setVgap(10);
         gridPane.setPadding(new Insets(25, 25, 25, 25));
     }
-
     private void initTableView(GridPane gridPane){
         bookTableView = new TableView<BookDTO>();
 
