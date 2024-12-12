@@ -2,7 +2,9 @@ package repository.user;
 
 import model.User;
 import model.validator.Notification;
+import view.model.UserDTO;
 
+import java.sql.ResultSet;
 import java.util.*;
 
 public interface UserRepository {

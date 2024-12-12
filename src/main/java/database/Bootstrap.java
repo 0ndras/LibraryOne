@@ -1,6 +1,10 @@
 package database;
+import model.Role;
+import model.User;
+import model.builder.UserBuilder;
 import repository.security.RightsRolesRepository;
 import repository.security.RightsRolesRepositoryMySQL;
+import repository.user.UserRepository;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -10,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static database.Constants.Rights.RIGHTS;
+import static database.Constants.Roles.ADMINISTRATOR;
 import static database.Constants.Roles.ROLES;
 import static database.Constants.Schemas.SCHEMAS;
 import static database.Constants.getRolesRights;
@@ -17,7 +22,6 @@ import static database.Constants.getRolesRights;
 // Script - code that automates some steps or processes
 
 public class Bootstrap {
-
     private static RightsRolesRepository rightsRolesRepository;
 
     public static void main(String[] args) throws SQLException {
@@ -26,6 +30,8 @@ public class Bootstrap {
         bootstrapTables();
 
         bootstrapUserData();
+
+        rightsRolesRepository.createAdminUser();
     }
 
     private static void dropAll() throws SQLException {
@@ -43,7 +49,7 @@ public class Bootstrap {
                     "TRUNCATE `user_role`;",
                     "DROP TABLE `user_role`;",
                     "TRUNCATE `role`;",
-                    "DROP TABLE  `book`, `role`, `user`;"
+                    "DROP TABLE  `order`, `book`, `role`, `user`;"
             };
 
             Arrays.stream(dropStatements).forEach(dropStatement -> {
@@ -63,7 +69,6 @@ public class Bootstrap {
 
         for (String schema : SCHEMAS) {
             System.out.println("Bootstrapping " + schema + " schema");
-
 
             JDBConnectionWrapper connectionWrapper = new JDBConnectionWrapper(schema);
             Connection connection = connectionWrapper.getConnection();
@@ -120,6 +125,5 @@ public class Bootstrap {
     }
 
     private static void bootstrapUserRoles() throws SQLException {
-
     }
 }

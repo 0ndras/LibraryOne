@@ -51,13 +51,15 @@ public class BookRepositoryMySQL implements BookRepository{
     @Override
     public boolean save(Book book) {
 
-        String newSql = "INSERT INTO book VALUES(null, ?, ?, ?);";
+        String newSql = "INSERT INTO book VALUES(null, ?, ?, ?, ?, ?);";
 
         try{
             PreparedStatement preparedStatement = connection.prepareStatement(newSql);
             preparedStatement.setString(1, book.getAuthor());
             preparedStatement.setString(2, book.getTitle());
             preparedStatement.setDate(3, java.sql.Date.valueOf(book.getPublishedDate()));
+            preparedStatement.setInt(4, book.getStock());
+            preparedStatement.setInt(5, book.getPrice());
 
             int rowsInserted = preparedStatement.executeUpdate();
 
@@ -95,12 +97,31 @@ public class BookRepositoryMySQL implements BookRepository{
         }
     }
 
+    @Override
+    public boolean updateStock(Book book) {
+        String updateSql = "UPDATE book SET stock = stock - 1 WHERE author = ? AND title = ? AND stock > 0";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(updateSql)) {
+            preparedStatement.setString(1, book.getAuthor());
+            preparedStatement.setString(2, book.getTitle());
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private Book getBookFromResultSet(ResultSet resultSet) throws SQLException {
         return new BookBuilder()
                 .setId(resultSet.getLong("id"))
                 .setTitle(resultSet.getString("title"))
                 .setAuthor(resultSet.getString("author"))
                 .setPublishedDate(new java.sql.Date(resultSet.getDate("publishedDate").getTime()).toLocalDate())
+                .setStock(resultSet.getInt("stock"))
+                .setPrice(resultSet.getInt("price"))
                 .build();
     }
 }

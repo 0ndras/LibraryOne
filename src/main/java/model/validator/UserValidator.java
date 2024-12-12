@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static database.Constants.Roles.ADMINISTRATOR;
+
 public class UserValidator {
     private static final String EMAIL_VALIDATION_REGEX = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
     public static final int MIN_PASSWORD_LENGTH = 8;
@@ -68,4 +70,10 @@ public class UserValidator {
     public String getFormattedErrors() {
         return String.join("\n", errors);
     }
+//nush daca trb asta
+    public boolean isAdmin(User user) {
+        return user.getRoles().stream()
+                .anyMatch(role -> role.getRole().equalsIgnoreCase(ADMINISTRATOR));
+    }
+
 }

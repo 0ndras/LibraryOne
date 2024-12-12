@@ -30,10 +30,25 @@ public class JDBConnectionWrapper {
                 " author VARCHAR(500) NOT NULL," +
                 " title VARCHAR(500) NOT NULL," +
                 " publishedDate datetime DEFAULT NULL," +
+                " stock bigint NOT NULL," +
+                " price bigint NOT NULL," +
                 " PRIMARY KEY(id)," +
                 " UNIQUE KEY id_UNIQUE(id)" +
                 ") ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
         statement.execute(sql);
+
+        Statement orderStatement = connection.createStatement();
+
+        String orderSql = "CREATE TABLE IF NOT EXISTS `order`(" +
+                "  id bigint NOT NULL AUTO_INCREMENT," +
+                "  employeeUsername VARCHAR(500) NOT NULL," +
+                "  bookTitle VARCHAR(500) NOT NULL," +
+                "  saleDate datetime DEFAULT NULL," +
+                "  PRIMARY KEY(id)," +
+                "  UNIQUE KEY id_UNIQUE(id)" +
+                ") ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
+
+        orderStatement.execute(orderSql);
     }
     public boolean testConnection() throws SQLException{
         return connection.isValid(TIMEOUT);
