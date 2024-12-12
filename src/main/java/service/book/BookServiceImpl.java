@@ -28,12 +28,12 @@ public class BookServiceImpl implements BookService{
     public boolean save(Book book) {
         return bookRepository.save(book);
     }
-
     @Override
     public boolean delete(Book book) {
         return bookRepository.delete(book);
     }
-
+    public boolean updateStock(Book book){ return bookRepository.updateStock(book);
+    }
     @Override
     public int getAgeOfBook(Long id) {
         Book book = this.findById(id);

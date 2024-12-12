@@ -5,6 +5,8 @@ import model.Role;
 import model.User;
 import repository.security.RightsRolesRepository;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,6 +15,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import static database.Constants.Roles.ADMINISTRATOR;
 import static database.Constants.Tables.*;
 
 public class RightsRolesRepositoryMySQL implements RightsRolesRepository {
@@ -141,7 +144,60 @@ public class RightsRolesRepositoryMySQL implements RightsRolesRepository {
             insertStatement.setLong(2, rightId);
             insertStatement.executeUpdate();
         } catch (SQLException e) {
-
         }
     }
+    @Override
+    public void createAdminUser() {
+        try {
+            Role adminRole = findRoleByTitle(ADMINISTRATOR);
+
+            String username = "admin";
+            String hashedPassword = hashPassword("Adminpass1!");
+
+            PreparedStatement insertUserStatement = connection
+                    .prepareStatement("INSERT INTO `user` (username, password) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+            insertUserStatement.setString(1, username);
+            insertUserStatement.setString(2, hashedPassword);
+            insertUserStatement.executeUpdate();
+
+            ResultSet generatedKeys = insertUserStatement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                long userId = generatedKeys.getLong(1);
+
+                PreparedStatement insertUserRoleStatement = connection
+                        .prepareStatement("INSERT INTO `user_role` (user_id, role_id) VALUES (?, ?)");
+                insertUserRoleStatement.setLong(1, userId);
+                insertUserRoleStatement.setLong(2, adminRole.getId());
+                insertUserRoleStatement.executeUpdate();
+
+                System.out.println("Admin user created successfully: " + username);
+            } else {
+                System.out.println("Failed to retrieve user ID after insertion.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String hashPassword(String password) {
+        try {
+            // Sercured Hash Algorithm - 256
+            // 1 byte = 8 biți
+            // 1 byte = 1 char
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
 }

@@ -1,16 +1,25 @@
 package repository.user;
+import javafx.collections.FXCollections;
+import model.Book;
 import model.User;
 import model.builder.UserBuilder;
 import model.validator.Notification;
 import repository.security.RightsRolesRepository;
+import view.model.BookDTO;
+import view.model.UserDTO;
+import view.model.builder.BookDTOBuilder;
+import view.model.builder.UserDTOBuilder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import static database.Constants.Roles.EMPLOYEE;
 import static database.Constants.Tables.USER;
 import static java.util.Collections.singletonList;
 
@@ -27,7 +36,19 @@ public class UserRepositoryMySQL implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return null;
+        String sql = "SELECT * FROM user";
+
+        List<User>  users = new ArrayList<>();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            while(resultSet.next()){
+                users.add(getUserFromResultSet(resultSet));
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return users;
     }
 
     // SQL Injection Attacks should not work after fixing functions
@@ -116,6 +137,13 @@ public class UserRepositoryMySQL implements UserRepository {
             e.printStackTrace();
             return false;
         }
+    }
+    private User getUserFromResultSet(ResultSet resultSet) throws SQLException {
+        return new UserBuilder()
+                .setUsername(resultSet.getString("username"))
+                .setPassword(resultSet.getString("password"))
+                .setRoles(rightsRolesRepository.findRolesForUser(resultSet.getLong("id")))
+                .build();
     }
 
 }

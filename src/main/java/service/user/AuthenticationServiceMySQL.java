@@ -12,6 +12,7 @@ import java.security.MessageDigest;
 import java.util.Collections;
 
 import static database.Constants.Roles.CUSTOMER;
+import static database.Constants.Roles.EMPLOYEE;
 
 public class AuthenticationServiceMySQL implements AuthenticationService {
 
@@ -26,12 +27,12 @@ public class AuthenticationServiceMySQL implements AuthenticationService {
     @Override
     public Notification<Boolean> register(String username, String password) {
 
-        Role customerRole = rightsRolesRepository.findRoleByTitle(CUSTOMER);
+        Role employeeRole = rightsRolesRepository.findRoleByTitle(EMPLOYEE);
 
         User user = new UserBuilder()
                 .setUsername(username)
                 .setPassword(password)
-                .setRoles(Collections.singletonList(customerRole))
+                .setRoles(Collections.singletonList(employeeRole))
                 .build();
 
         UserValidator userValidator = new UserValidator(user);

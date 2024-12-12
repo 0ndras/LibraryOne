@@ -1,17 +1,18 @@
 package controller;
+import helper.LoggedInUser;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 //import launcher.EmployeeComponentFactory;
-import launcher.ComponentFactory;
+import launcher.AdminComponentFactory;
+import launcher.EmployeeComponentFactory;
 import launcher.LoginComponentFactory;
 import model.User;
+import model.builder.UserBuilder;
 import model.validator.Notification;
-import model.validator.UserValidator;
 import service.user.AuthenticationService;
 import view.LoginView;
 
-import java.util.EventListener;
-import java.util.List;
+import static database.Constants.Roles.ADMINISTRATOR;
 
 public class LoginController {
 
@@ -35,13 +36,20 @@ public class LoginController {
 
             Notification<User> loginNotification = authenticationService.login(username, password);
 
-            if (loginNotification.hasErrors()){
+            if (loginNotification.hasErrors()) {
                 loginView.setActionTargetText(loginNotification.getFormattedErrors());
-            }else{
-                loginView.setActionTargetText("LogIn Successfull!");
-                //ATENTIE AICI se face tranzitia intre scenele din view
-                //EmployeeComponentFactory.getInstance(LoginComponentFactory.getComponentsForTests(), LoginComponentFactory.getStage());
-                ComponentFactory.getInstance(LoginComponentFactory.getComponentsForTests(), LoginComponentFactory.getStage());
+            } else {
+                loginView.setActionTargetText("LogIn Successful!");
+
+                User loggedInUser = loginNotification.getResult();
+
+                LoggedInUser.getInstance().setUsername(username);
+
+                if (loggedInUser != null && loggedInUser.getRoles() != null && loggedInUser.getRoles().stream().anyMatch(role -> role.getRole().equals(ADMINISTRATOR))) {
+                    AdminComponentFactory.getInstance(LoginComponentFactory.getComponentsForTests(), LoginComponentFactory.getStage());
+                } else {
+                    EmployeeComponentFactory.getInstance(LoginComponentFactory.getComponentsForTests(), LoginComponentFactory.getStage());
+                }
             }
         }
     }
